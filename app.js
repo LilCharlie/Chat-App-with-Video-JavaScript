@@ -84,13 +84,7 @@
     const newMessageDiv = document.createElement("div");
     const messageTimeDiv = document.createElement("div");
     // Getting and setting time (through "new Date" funktion)
-    let currentDate = new Date();
-    let currentTime =
-      currentDate.getHours() +
-      ":" +
-      currentDate.getMinutes() +
-      ":" +
-      currentDate.getSeconds();
+    let currentTime = new Date().toLocaleTimeString();
     console.log(currentTime);
     messageTimeDiv.innerHTML = currentTime;
     newMessageDiv.innerText = message;
