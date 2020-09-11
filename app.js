@@ -3,6 +3,7 @@
   // global variables
   let peer = null;
   let conn = null;
+  let mediaConn = null;
 
   // Connecting to peer server and getting user id (random id if the hash location is not defined)
   const myPeerId = location.hash.slice(1);
@@ -52,10 +53,82 @@
     document.dispatchEvent(event);
   };
 
+  // On peer event: "call" - incoming call
+  const peerOnCall = (incomingCall) => {
+    // if (confirm(`Answer call from ${incomingCall.peer}?`)) {
+    if (confirm("Answer call?")) {
+      mediaConn && mediaConn.close();
+      navigator.mediaDevices
+        .getUserMedia({ audio: true, video: true }) // promise
+        .then((myStream) => {
+          mediaConn = incomingCall;
+          incomingCall.answer(myStream);
+          mediaConn.on("stream", mediaConnOnStream);
+        });
+    }
+  };
+
   // Handling peer events
   peer.on("open", peerOnOpen);
   peer.on("error", peerOnError);
   peer.on("connection", peerOnConnection);
+  peer.on("call", peerOnCall);
+
+  // Display video of me
+  navigator.mediaDevices
+    .getUserMedia({ audio: false, video: true }) // promise
+    .then((stream) => {
+      const video = document.querySelector(".video-container.me video");
+      video.muted = true;
+      video.srcObject = stream;
+    });
+
+  const mediaConnOnStream = (theirStream) => {
+    const video = document.querySelector(".video-container.them video");
+    video.muted = true;
+    video.srcObject = theirStream;
+  };
+
+  // Start video click handler
+  const startVideoCallClick = () => {
+    const video = document.querySelector(".video-container.them");
+    const peerId = video.querySelector(".name").innerText;
+    const startButton = video.querySelector(".start");
+    const stopButton = video.querySelector(".stop");
+    startButton.classList.remove("active");
+    stopButton.classList.add("active");
+
+    navigator.mediaDevices
+      .getUserMedia({ audio: true, video: true }) // promise
+      .then((myStream) => {
+        mediaConn && mediaConn.close();
+        console.log("conn.peer: " + conn.peer);
+        mediaConn = peer.call(peerId, myStream);
+        mediaConn.on("stream", mediaConnOnStream);
+      });
+  };
+
+  document
+    .querySelector(".video-container.them .start")
+    .addEventListener("click", () => {
+      console.log("start video clicked");
+      startVideoCallClick();
+    });
+
+  // Stop video click handler
+  const stopVideoCallClick = () => {
+    console.log("stop video clicked");
+    const video = document.querySelector(".video-container.them");
+    const startButton = video.querySelector(".start");
+    const stopButton = video.querySelector(".stop");
+    stopButton.classList.remove("active");
+    startButton.classList.add("active");
+    mediaConn && mediaConn.close();
+  };
+
+  document
+    .querySelector(".video-container.them .stop")
+    .addEventListener("click", stopVideoCallClick);
 
   // Connection function
   const connectToPeerClick = (event) => {
@@ -98,6 +171,7 @@
     messageWrapperDiv.appendChild(messageTimeDiv);
     messageWrapperDiv.appendChild(newMessageDiv);
     messagesDiv.appendChild(messageWrapperDiv);
+    messagesDiv.scrollTo(0, messagesDiv.scrollHeight);
   }
 
   // Setting EventListener for "refresh list" button
@@ -135,6 +209,13 @@
     });
     const button = document.querySelector(`.connect-button.peerId-${peerId}`);
     button && button.classList.add("connected");
+
+    // Update video subtext
+    const video = document.querySelector(".video-container.them");
+    video.querySelector(".name").innerText = peerId;
+    video.classList.add("connected");
+    video.querySelector(".stop").classList.remove("active");
+    video.querySelector(".start").classList.add("active");
   });
 
   // Setting EventListener for "send" button
