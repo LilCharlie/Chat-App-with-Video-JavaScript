@@ -55,17 +55,14 @@
 
   // On peer event: "call" - incoming call
   const peerOnCall = (incomingCall) => {
-    // if (confirm(`Answer call from ${incomingCall.peer}?`)) {
-    if (confirm("Answer call?")) {
-      mediaConn && mediaConn.close();
-      navigator.mediaDevices
-        .getUserMedia({ audio: true, video: true }) // promise
-        .then((myStream) => {
-          mediaConn = incomingCall;
-          incomingCall.answer(myStream);
-          mediaConn.on("stream", mediaConnOnStream);
-        });
-    }
+    mediaConn && mediaConn.close();
+    navigator.mediaDevices
+      .getUserMedia({ audio: true, video: true }) // promise
+      .then((myStream) => {
+        mediaConn = incomingCall;
+        incomingCall.answer(myStream);
+        mediaConn.on("stream", mediaConnOnStream);
+      });
   };
 
   // Handling peer events
