@@ -84,6 +84,12 @@
     const video = document.querySelector(".video-container.them video");
     video.muted = true;
     video.srcObject = theirStream;
+    document
+      .querySelector(".video-container.them .start")
+      .classList.remove("active");
+    document
+      .querySelector(".video-container.them .stop")
+      .classList.add("active");
   };
 
   // Start video click handler
@@ -107,10 +113,7 @@
 
   document
     .querySelector(".video-container.them .start")
-    .addEventListener("click", () => {
-      console.log("start video clicked");
-      startVideoCallClick();
-    });
+    .addEventListener("click", startVideoCallClick);
 
   // Stop video click handler
   const stopVideoCallClick = () => {
