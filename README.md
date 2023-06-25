@@ -2,7 +2,7 @@
 
 Chat applikation with video - school work at Advanced JavaScript Course (2020)
 
-https://margareta75.github.io/Chat-App-with-Video-JavaScript/
+https://gosiacodes.github.io/Chat-App-with-Video-JavaScript/
 
 ## :pushpin: _How does the application work?_
 
